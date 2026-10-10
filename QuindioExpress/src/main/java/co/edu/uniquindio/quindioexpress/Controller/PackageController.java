@@ -1,42 +1,65 @@
+
 package co.edu.uniquindio.quindioexpress.Controller;
 
 import co.edu.uniquindio.quindioexpress.Model.Package;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class PackageController {
 
-
+    private ArrayList<Package> packages;
+    private HashMap<String, Package> packagesByCode;
 
     public PackageController() {
-
+        packages = new ArrayList<>();
+        packagesByCode = new HashMap<>();
     }
 
-    public boolean addPackage(Package newPackage) {
-        return false;
+    public void addPackage(Package newPackage) {
+
+
     }
 
     public Package searchPackage(String code) {
-        return null;
+
+        if (code == null || code.isEmpty()) {
+            return null;
+        }
+
+        return packagesByCode.get(code);
     }
 
     public boolean removePackage(String code) {
-        return false;
+
+        Package packageFound = searchPackage(code);
+
+        if (packageFound == null) {
+            return false;
+        }
+
+        packages.remove(packageFound);
+        packagesByCode.remove(code);
+
+        return true;
     }
 
-    public int getSize() {
-        return 0;
-    }
 
-    public boolean isEmpty() {
-        return false;
-    }
 
     public ArrayList<Package> getPackages() {
-        return null;
+
+        ArrayList<Package> copy = new ArrayList<>();
+
+        for (int i = 0; i < packages.size(); i++) {
+            copy.add(packages.get(i));
+        }
+
+        return copy;
     }
 
     public void clearPackages() {
 
+        packages.clear();
+        packagesByCode.clear();
     }
 }
