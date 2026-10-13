@@ -1,15 +1,15 @@
 package co.edu.uniquindio.quindioexpress.Model;
 
 
-public class Package {
+public class Package implements Comparable<Package> {
 
     private String code;
     private String municipio;
     private double weight;
     private int priority;
-    private String time;
+    private int time;
 
-    public Package(String code, String municipio, double weight, int priority, String time) {
+    public Package(String code, String municipio, double weight, int priority, int time) {
         this.code = code;
         this.municipio = municipio;
         this.weight = weight;
@@ -49,11 +49,16 @@ public class Package {
         this.priority = priority;
     }
 
-    public String getTime() {
+    public int getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(int time) {
         this.time = time;
+    }
+
+    @Override
+    public int compareTo(Package otroPaquete) {
+        return this.code.compareTo(otroPaquete.getCode());
     }
 }
