@@ -5,11 +5,11 @@ public class Package {
 
     private String code;
     private String municipio;
-    private String weight;
-    private String priority;
+    private double weight;
+    private int priority;
     private String time;
 
-    public Package(String code, String municipio, String weight, String priority, String time) {
+    public Package(String code, String municipio, double weight, int priority, String time) {
         this.code = code;
         this.municipio = municipio;
         this.weight = weight;
@@ -33,19 +33,19 @@ public class Package {
         this.municipio = municipio;
     }
 
-    public String getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(String weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 
-    public String getPriority() {
+    public int getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(int priority) {
         this.priority = priority;
     }
 

@@ -6,6 +6,7 @@ import co.edu.uniquindio.quindioexpress.Model.Package;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
 public class PackageController {
 
     private ArrayList<Package> packages;
@@ -61,5 +62,45 @@ public class PackageController {
 
         packages.clear();
         packagesByCode.clear();
+    }
+
+    public double calcularPesoTotalPorMunicipio(ArrayList<Package> packages, String municipio) {
+        return calcularPesoRecursivo(packages, municipio, 0);
+    }
+
+    private double calcularPesoRecursivo(ArrayList<Package> packages, String municipio, int indice) {
+        if (indice == packages.size()) {
+            return 0.0;
+        }
+
+        Package actual = packages.get(indice);
+        double pesoActual = 0.0;
+
+        if (actual.getMunicipio() != null && actual.getMunicipio().equalsIgnoreCase(municipio)) {
+            pesoActual = actual.getWeight(); // Como ya es double, se usa directamente
+        }
+
+        return pesoActual + calcularPesoRecursivo(packages, municipio, indice + 1);
+    }
+
+    public int contarPaquetesPorPrioridadMinima(ArrayList<Package> packages, int minPriority) {
+        return contarPaquetesRecursivo(packages, minPriority, 0);
+    }
+
+    private int contarPaquetesRecursivo(ArrayList<Package> packages, int minPriority, int indice) {
+        if (indice == packages.size()) {
+            return 0;
+        }
+
+        Package actual = packages.get(indice);
+        int coincide = 0;
+
+
+        if (actual.getPriority() >= minPriority) {
+            coincide = 1;
+        }
+
+
+        return coincide + contarPaquetesRecursivo(packages, minPriority, indice + 1);
     }
 }
