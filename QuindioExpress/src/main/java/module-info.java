@@ -1,7 +1,7 @@
 module co.edu.uniquindio.quindioexpress {
     requires javafx.controls;
     requires javafx.fxml;
-    requires co.edu.uniquindio.quindioexpress;
+
 
 
     opens co.edu.uniquindio.quindioexpress to javafx.fxml;

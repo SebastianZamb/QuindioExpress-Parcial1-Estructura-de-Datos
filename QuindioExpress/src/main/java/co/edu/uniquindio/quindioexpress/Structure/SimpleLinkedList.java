@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 public class SimpleLinkedList<T> implements Iterable<T> {
 
     private int size;
-    private NodeSimple<T> firstNode; // Debe ser genérico
+    private NodeSimple<T> firstNode;
 
     public SimpleLinkedList() {
         this.size = 0;

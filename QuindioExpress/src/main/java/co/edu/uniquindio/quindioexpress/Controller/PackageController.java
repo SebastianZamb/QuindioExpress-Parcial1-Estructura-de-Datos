@@ -27,6 +27,7 @@ public class PackageController {
         packages = new ArrayList<>();
         packagesByCode = new HashMap<>();
         this.arrivalOrderQueue = new LinkedList<>();
+        dealerList = new ArrayList<>();
     }
 
     public void addPackage(Package newPackage) {
@@ -345,5 +346,29 @@ public class PackageController {
                     "Delivered package: " + pkg.getCode()
                             + " -> Destination: " + pkg.getMunicipio());
         }
+    }
+
+    public boolean addDealer(Dealer dealer) {
+
+        if (dealer == null || dealer.getId() <= 0) {
+            return false;
+        }
+
+        for (Dealer current : dealerList) {
+            if (current.getId() == dealer.getId()) {
+                return false;
+            }
+        }
+
+        dealerList.add(dealer);
+        return true;
+    }
+
+    public List<Dealer> getDealers() {
+
+        return new ArrayList<>(dealerList);
+    }
+    public Package peekNextPriorityPackage() {
+        return priorityQueue.peek();
     }
 }
