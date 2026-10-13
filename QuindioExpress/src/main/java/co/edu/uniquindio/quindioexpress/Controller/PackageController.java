@@ -1,18 +1,32 @@
+
 package co.edu.uniquindio.quindioexpress.Controller;
 
+import co.edu.uniquindio.quindioexpress.Comparators.PackageComparators;
+import co.edu.uniquindio.quindioexpress.Model.Dealer;
 import co.edu.uniquindio.quindioexpress.Model.Package;
+import co.edu.uniquindio.quindioexpress.Structure.SimpleLinkedList;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 public class PackageController {
 
     private ArrayList<Package> packages;
     private HashMap<String, Package> packagesByCode;
+    private Queue<Package> arrivalOrderQueue;
+    private List<Package> packageList;
+    private List<Dealer> dealerList;
+    private SimpleLinkedList<Package> deliveryHistory = new SimpleLinkedList<>();
+
+    private PriorityQueue<Package> priorityQueue = new PriorityQueue<>(
+            Comparator.comparingInt(Package::getPriority).reversed()
+                    .thenComparingInt(Package::getTime)
+                    .thenComparing(Package::getCode)
+    );
 
     public PackageController() {
         packages = new ArrayList<>();
         packagesByCode = new HashMap<>();
+        this.arrivalOrderQueue = new LinkedList<>();
     }
 
     public void addPackage(Package newPackage) {
@@ -83,7 +97,6 @@ public class PackageController {
     }
 
     public void clearPackages() {
-
         packages.clear();
         packagesByCode.clear();
     }
@@ -94,8 +107,7 @@ public class PackageController {
             return null;
         }
 
-        return findHeaviestPackage(
-                packages, 0, packages.size() - 1);
+        return findHeaviestPackage(packages, 0, packages.size() - 1);
     }
 
     private Package findHeaviestPackage(
@@ -107,11 +119,8 @@ public class PackageController {
 
         int middle = (start + end) / 2;
 
-        Package left = findHeaviestPackage(
-                packages, start, middle);
-
-        Package right = findHeaviestPackage(
-                packages, middle + 1, end);
+        Package left = findHeaviestPackage(packages, start, middle);
+        Package right = findHeaviestPackage(packages, middle + 1, end);
 
         if (left.getWeight() > right.getWeight()) {
             return left;
@@ -137,7 +146,6 @@ public class PackageController {
         while (start <= end) {
 
             int middle = start + (end - start) / 2;
-
             Package current = orderedPackages.get(middle);
 
             int comparison = current.getCode().compareTo(code);
@@ -163,8 +171,7 @@ public class PackageController {
             return 0.0;
         }
 
-        return calculateWeightRecursively(
-                packages, municipality, 0);
+        return calculateWeightRecursively(packages, municipality, 0);
     }
 
     private double calculateWeightRecursively(
@@ -185,8 +192,7 @@ public class PackageController {
         }
 
         return currentWeight +
-                calculateWeightRecursively(
-                        packages, municipality, index + 1);
+                calculateWeightRecursively(packages, municipality, index + 1);
     }
 
     public int countPackagesByMinimumPriority(
@@ -196,8 +202,7 @@ public class PackageController {
             return 0;
         }
 
-        return countPackagesRecursively(
-                packages, minPriority, 0);
+        return countPackagesRecursively(packages, minPriority, 0);
     }
 
     private int countPackagesRecursively(
@@ -217,7 +222,128 @@ public class PackageController {
         }
 
         return matches +
-                countPackagesRecursively(
-                        packages, minPriority, index + 1);
+                countPackagesRecursively(packages, minPriority, index + 1);
+    }
+
+    public Set<String> getUniqueMunicipalities() {
+
+        Set<String> uniqueMunicipalities = new HashSet<>();
+
+        for (Package pkg : packages) {
+            if (pkg.getMunicipio() != null) {
+                uniqueMunicipalities.add(pkg.getMunicipio());
+            }
+        }
+
+        return uniqueMunicipalities;
+    }
+
+    public Set<String> getSortedMunicipalities() {
+
+        Set<String> sortedMunicipalities = new TreeSet<>();
+
+        for (Package pkg : packages) {
+            if (pkg.getMunicipio() != null) {
+                sortedMunicipalities.add(pkg.getMunicipio());
+            }
+        }
+
+        return sortedMunicipalities;
+    }
+
+    public Map<String, Set<Package>> groupPackagesByMunicipality() {
+
+        Map<String, Set<Package>> packagesByMunicipality = new HashMap<>();
+
+        for (Package pkg : packages) {
+            String municipality = pkg.getMunicipio();
+
+            if (municipality != null && !municipality.isEmpty()) {
+                packagesByMunicipality.putIfAbsent(
+                        municipality, new HashSet<>());
+
+                packagesByMunicipality.get(municipality).add(pkg);
+            }
+        }
+
+        return packagesByMunicipality;
+    }
+
+    public void addPriorityPackage(Package pkg) {
+        priorityQueue.offer(pkg);
+    }
+
+    public Package attendNextPriorityPackage() {
+        return priorityQueue.poll();
+    }
+
+    public void registerPackageForProcessing(Package pkg) {
+        if (pkg != null) {
+            arrivalOrderQueue.offer(pkg);
+        }
+    }
+
+    public Package attendNextPackage() {
+        return arrivalOrderQueue.poll();
+    }
+
+    public Package peekNextPackage() {
+        return arrivalOrderQueue.peek();
+    }
+
+    public boolean hasPendingPackages() {
+        return !arrivalOrderQueue.isEmpty();
+    }
+
+    public void sortPackagesByWeight(List<Package> packages) {
+        packages.sort(PackageComparators.POR_PESO_DESC);
+    }
+
+    public void sortPackagesByPriority(List<Package> packages) {
+        packages.sort(PackageComparators.POR_PRIORIDAD_DESC);
+    }
+
+    public void sortPackagesByTime(List<Package> packages) {
+        packages.sort(PackageComparators.POR_TIEMPO_ASC);
+    }
+
+    public boolean assignPackageToDealer(Package pkg) {
+
+        if (pkg == null || dealerList == null) {
+            return false;
+        }
+
+        String packageDestination = pkg.getMunicipio();
+
+        for (Dealer dealer : dealerList) {
+            boolean isAvailable = dealer.isAvailable();
+
+            boolean sameZone = dealer.getMunicipio() != null
+                    && dealer.getMunicipio().equalsIgnoreCase(packageDestination);
+
+            if (isAvailable && sameZone) {
+                dealer.setAvailable(false);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void registerPackageDelivery(Package deliveredPackage) {
+        if (deliveredPackage != null) {
+            deliveryHistory.add(deliveredPackage);
+        }
+    }
+
+    public void displayDeliveryHistory() {
+
+        System.out.println("--- DELIVERY HISTORY ---");
+
+        for (Package pkg : deliveryHistory) {
+            System.out.println(
+                    "Delivered package: " + pkg.getCode()
+                            + " -> Destination: " + pkg.getMunicipio());
+        }
     }
 }

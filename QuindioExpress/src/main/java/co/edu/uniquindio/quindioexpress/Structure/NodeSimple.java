@@ -1,27 +1,28 @@
 package co.edu.uniquindio.quindioexpress.Structure;
 
-public class NodeSimple {
+public class NodeSimple<T> {
 
-    private int data;
-    private NodeSimple next;
+    private T data;
+    private NodeSimple<T> next;
 
-    public NodeSimple(int data) {
+    public NodeSimple(T data) {
         this.data = data;
+        this.next = null;
     }
 
-    public int getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(int data) {
+    public void setData(T data) {
         this.data = data;
     }
 
-    public NodeSimple getNext() {
+    public NodeSimple<T> getNext() {
         return next;
     }
 
-    public void setNext(NodeSimple next) {
+    public void setNext(NodeSimple<T> next) {
         this.next = next;
     }
 }
